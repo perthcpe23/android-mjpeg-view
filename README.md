@@ -7,12 +7,15 @@ You can download .arr at https://github.com/perthcpe23/android-mjpeg-view/tree/m
 
 Basic usage
 XML layout source code:
+<code>
 <com.longdo.mjpegviewer.MjpegView
     android:id="@+id/mjpegview"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />
+</code>
 
 Java source code:
+<code>
 MjpegView viewer = (MjpegView) findViewById(R.id.mjpegview);
 viewer.setMode(MjpegView.MODE_FIT_WIDTH);
 viewer.setAdjustHeight(true);
@@ -21,5 +24,6 @@ viewer.startStream();
 
 //when user leaves application
 viewer.stopStream();
+</code>
 		 
 This project is developed using Android Studio. Feel free to clone and import to yours.
