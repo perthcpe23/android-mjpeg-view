@@ -29,7 +29,7 @@ public class MjpegView extends View{
     public static final int MODE_STRETCH = 4;
 
     private static final int CHUNK_SIZE = 4096;
-    private final String tag = getClass().getName();
+    private final String tag = getClass().getSimpleName();
 
     private Context context;
     private String url;
@@ -48,14 +48,12 @@ public class MjpegView extends View{
     public MjpegView(Context context){
         super(context);
         this.context = context;
-
         init();
     }
 
     public MjpegView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-
         init();
     }
 
@@ -69,8 +67,9 @@ public class MjpegView extends View{
     }
 
     public void startStream(){
-        if(downloader != null && downloader.getState() != Thread.State.TERMINATED){
-            downloader.cancel();
+        if(downloader != null && downloader.isRunning()){
+            Log.w(tag,"Already started, stop by calling stopStream() first.");
+            return;
         }
 
         downloader = new MjpegDownloader();
@@ -90,7 +89,7 @@ public class MjpegView extends View{
     }
 
     public void setBitmap(Bitmap bm){
-        Log.d(tag,"new frame");
+        Log.d(tag,"New frame");
         if(lastBitmap != null){
             lastBitmap.recycle();
         }
@@ -107,7 +106,7 @@ public class MjpegView extends View{
             });
         }
         else{
-            Log.e(tag,"Context is not instance of Activity");
+            Log.e(tag,"Can not request Canvas's redraw. Context is not an instance of Activity");
         }
     }
 
@@ -117,7 +116,7 @@ public class MjpegView extends View{
             vWidth = MeasureSpec.getSize(widthMeasureSpec);
             vHeight = MeasureSpec.getSize(heightMeasureSpec);
 
-            Log.d(tag,"recalculate view/image size");
+            Log.d(tag,"Recalculate view/image size");
 
             lastImgWidth = lastBitmap.getWidth();
             lastImgHeight = lastBitmap.getHeight();
@@ -240,7 +239,7 @@ public class MjpegView extends View{
                 c.drawBitmap(lastBitmap, drawX, drawY, paint);
             }
         } else {
-            Log.d(tag, "skip drawing");
+            Log.d(tag,"Skip drawing, canvas is null or bitmap is not ready yet");
         }
     }
 
@@ -266,6 +265,10 @@ public class MjpegView extends View{
 
         public void cancel(){
             run = false;
+        }
+
+        public boolean isRunning(){
+            return run;
         }
 
         @Override

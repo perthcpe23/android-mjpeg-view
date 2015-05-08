@@ -12,10 +12,11 @@
         android:id="@+id/mjpegview"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#000"
-        android:text="TEST MJPEG VIEWER"
+        android:text="Fit width with auto adjust view height."
         android:gravity="center"/>
 </LinearLayout>
