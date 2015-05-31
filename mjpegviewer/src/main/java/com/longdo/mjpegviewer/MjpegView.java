@@ -324,7 +324,9 @@ public class MjpegView extends View{
 
                                 Bitmap outputImg = BitmapFactory.decodeByteArray(image, 0, image.length);
                                 if (outputImg != null) {
-                                    newFrame(outputImg);
+                                    if(run) {
+                                        newFrame(outputImg);
+                                    }
                                 } else {
                                     Log.e(tag, "Read image error");
                                 }
