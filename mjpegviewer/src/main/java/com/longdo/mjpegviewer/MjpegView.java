@@ -277,7 +277,7 @@ public class MjpegView extends View{
 
                 HttpURLConnection connection = null;
                 BufferedInputStream bis = null;
-                URL serverUrl;
+                URL serverUrl = null;
 
                 try {
                     serverUrl = new URL(url);

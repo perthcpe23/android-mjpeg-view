@@ -21,7 +21,7 @@ public class MainActivity extends ActionBarActivity {
         view.setAdjustHeight(true);
         //view.setAdjustWidth(true);
         view.setMode(MjpegView.MODE_FIT_WIDTH);
-        view.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.212.226");
+        view.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=10.107.129.126");
         //view.seturl("http://trackfield.webcam.oregonstate.edu/axis-cgi/mjpg/video.cgi?resolution=800x600&amp%3bdummy=1333689998337");
     }
 
