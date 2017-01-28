@@ -1,14 +1,14 @@
 package com.longdo.mjpegview;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.longdo.mjpegviewer.MjpegView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private MjpegView view;
 
@@ -21,8 +21,8 @@ public class MainActivity extends ActionBarActivity {
         view.setAdjustHeight(true);
         //view.setAdjustWidth(true);
         view.setMode(MjpegView.MODE_FIT_WIDTH);
-        view.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=10.107.129.126");
-        //view.seturl("http://trackfield.webcam.oregonstate.edu/axis-cgi/mjpg/video.cgi?resolution=800x600&amp%3bdummy=1333689998337");
+        //view.setMsecWaitAfterReadImageError(1000);
+        view.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.182.114:1111");
     }
 
     @Override

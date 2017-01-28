@@ -7,3 +7,6 @@ mjpegviewer_v0.0.2.aar
 
 mjpegviewer_v0.0.3.aar
   - fix boundary issue
+
+mjpegviewer_v1.0.0.aar
+  - support setting a delay after reading image error

@@ -28,6 +28,7 @@ public class MjpegView extends View{
     public static final int MODE_BEST_FIT = 3;
     public static final int MODE_STRETCH = 4;
 
+    private static final int WAIT_AFTER_READ_IMAGE_ERROR_MSEC = 5000;
     private static final int CHUNK_SIZE = 4096;
     private final String tag = getClass().getSimpleName();
 
@@ -44,6 +45,8 @@ public class MjpegView extends View{
     private int lastImgWidth, lastImgHeight;
 
     private boolean adjustWidth, adjustHeight;
+
+    private int msecWaitAfterReadImageError = WAIT_AFTER_READ_IMAGE_ERROR_MSEC;
 
     public MjpegView(Context context){
         super(context);
@@ -89,7 +92,7 @@ public class MjpegView extends View{
     }
 
     public void setBitmap(Bitmap bm){
-        Log.d(tag,"New frame");
+        Log.v(tag,"New frame");
         if(lastBitmap != null){
             lastBitmap.recycle();
         }
@@ -259,6 +262,14 @@ public class MjpegView extends View{
         this.adjustHeight = adjustHeight;
     }
 
+    public int getMsecWaitAfterReadImageError() {
+        return msecWaitAfterReadImageError;
+    }
+
+    public void setMsecWaitAfterReadImageError(int msecWaitAfterReadImageError) {
+        this.msecWaitAfterReadImageError = msecWaitAfterReadImageError;
+    }
+
     class MjpegDownloader extends Thread{
 
         private boolean run = true;
@@ -355,10 +366,12 @@ public class MjpegView extends View{
                     Log.e(tag, e.getMessage());
                 }
 
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Log.e(tag, e.getMessage());
+                if(msecWaitAfterReadImageError > 0) {
+                    try {
+                        Thread.sleep(msecWaitAfterReadImageError);
+                    } catch (InterruptedException e) {
+                        Log.e(tag, e.getMessage());
+                    }
                 }
             }
         }
