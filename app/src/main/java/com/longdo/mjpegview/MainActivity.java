@@ -10,30 +10,40 @@ import com.longdo.mjpegviewer.MjpegView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MjpegView view;
+    private MjpegView view1;
+    private MjpegView view2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        view = (MjpegView) findViewById(R.id.mjpegview);
-        view.setAdjustHeight(true);
+        view1 = (MjpegView) findViewById(R.id.mjpegview1);
+        view1.setAdjustHeight(true);
         //view.setAdjustWidth(true);
-        view.setMode(MjpegView.MODE_FIT_WIDTH);
+        view1.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.182.114:1111");
+        view1.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.182.114:1111");
+
+        view2 = (MjpegView) findViewById(R.id.mjpegview2);
+        view2.setAdjustHeight(true);
+        //view.setAdjustWidth(true);
+        view2.setMode(MjpegView.MODE_FIT_WIDTH);
+        //view.setMsecWaitAfterReadImageError(1000);
+        view2.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.182.114:1112");
     }
 
     @Override
     protected void onResume() {
-        view.startStream();
+        view1.startStream();
+        view2.startStream();
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        view.stopStream();
+        view1.stopStream();
+        view2.stopStream();
         super.onPause();
     }
 
@@ -61,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        view.stopStream();
+        view1.stopStream();
+        view2.stopStream();
         super.onStop();
     }
 }

@@ -231,7 +231,7 @@ public class MjpegView extends View{
 
     @Override
     protected void onDraw(Canvas c) {
-        if (c != null && lastBitmap != null) {
+        if (c != null && lastBitmap != null && !lastBitmap.isRecycled()) {
             if(isInEditMode()){
 
             }
