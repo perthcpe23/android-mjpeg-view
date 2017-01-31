@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +48,9 @@ public class MjpegView extends View{
     private boolean adjustWidth, adjustHeight;
 
     private int msecWaitAfterReadImageError = WAIT_AFTER_READ_IMAGE_ERROR_MSEC;
+
+    private boolean isRecycleBitmap;
+    private boolean isUserForceConfigRecycle;
 
     public MjpegView(Context context){
         super(context);
@@ -93,7 +97,8 @@ public class MjpegView extends View{
 
     public void setBitmap(Bitmap bm){
         Log.v(tag,"New frame");
-        if(lastBitmap != null){
+        if(lastBitmap != null && ((isUserForceConfigRecycle && isRecycleBitmap) || (!isUserForceConfigRecycle && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB))){
+            Log.v(tag,"Manually recycle bitmap");
             lastBitmap.recycle();
         }
 
@@ -268,6 +273,15 @@ public class MjpegView extends View{
 
     public void setMsecWaitAfterReadImageError(int msecWaitAfterReadImageError) {
         this.msecWaitAfterReadImageError = msecWaitAfterReadImageError;
+    }
+
+    public boolean isRecycleBitmap() {
+        return isRecycleBitmap;
+    }
+
+    public void setRecycleBitmap(boolean recycleBitmap) {
+        isUserForceConfigRecycle = true;
+        isRecycleBitmap = recycleBitmap;
     }
 
     class MjpegDownloader extends Thread{

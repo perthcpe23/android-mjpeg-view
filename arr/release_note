@@ -10,3 +10,7 @@ mjpegviewer_v0.0.3.aar
 
 mjpegviewer_v1.0.0.aar
   - support setting a delay after reading image error
+  
+mjpegviewer_v1.0.2.aar
+  - do not call Bitmap.recycle() if Android version is 3.0 and above.
+  - user can force library to or not to call recycle() on bitmap manually.

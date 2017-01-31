@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         view1.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
         view1.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.182.114:1111");
+        view1.setRecycleBitmap(true);
 
         view2 = (MjpegView) findViewById(R.id.mjpegview2);
         view2.setAdjustHeight(true);
