@@ -27,4 +27,6 @@ viewer.startStream();
 viewer.stopStream();
 ````
 		 
-This project is developed using Android Studio. Feel free to clone and import to yours.
+This project has been developed using Android Studio.
+
+Contributions by Longdo Developer Team (http://www.longdo.com)
