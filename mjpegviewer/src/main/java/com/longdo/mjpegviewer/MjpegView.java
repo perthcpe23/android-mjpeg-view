@@ -363,13 +363,17 @@ public class MjpegView extends View{
                                 image = addByte(image, read, 0, readByte);
                             }
                         } catch (Exception e) {
-                            Log.e(tag, e.getMessage());
+                            if(e != null && e.getMessage() != null) {
+                                Log.e(tag, e.getMessage());
+                            }
                             break;
                         }
                     }
 
                 } catch (Exception e) {
-                    Log.e(tag, e.getMessage());
+                    if(e != null && e.getMessage() != null) {
+                        Log.e(tag, e.getMessage());
+                    }
                 }
 
                 try {
@@ -377,14 +381,18 @@ public class MjpegView extends View{
                     connection.disconnect();
                     Log.i(tag,"disconnected with " + url);
                 } catch (Exception e) {
-                    Log.e(tag, e.getMessage());
+                    if(e != null && e.getMessage() != null) {
+                        Log.e(tag, e.getMessage());
+                    }
                 }
 
                 if(msecWaitAfterReadImageError > 0) {
                     try {
                         Thread.sleep(msecWaitAfterReadImageError);
                     } catch (InterruptedException e) {
-                        Log.e(tag, e.getMessage());
+                        if(e != null && e.getMessage() != null) {
+                            Log.e(tag, e.getMessage());
+                        }
                     }
                 }
             }
