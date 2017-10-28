@@ -14,3 +14,6 @@ mjpegviewer_v1.0.0.aar
 mjpegviewer_v1.0.2.aar
   - do not call Bitmap.recycle() if Android version is 3.0 and above.
   - user can force library to or not to call recycle() on bitmap manually.
+  
+mjpegviewer_v1.0.4.aar
+  - simply update build tools and gradle
