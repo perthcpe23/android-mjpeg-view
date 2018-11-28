@@ -311,9 +311,29 @@ public class MjpegView extends View{
                     connection.setDoInput(true);
                     connection.connect();
 
+                    String connectionType = connection.getHeaderField("Content-Type");
+                    if (connectionType == null) {
+                        throw new Exception("Unable to get connection type");
+                    }
+                    Log.e(tag,"ConnectionType " + connectionType);
+
+                    String[] types = connectionType.split(";");
+                    if (types.length == 0) {
+                        throw new Exception("Unable to get connection type was empty");
+                    }
+                    String headerBoundary = null;
+                    for (String ct : types) {
+                        if (ct.trim().startsWith("boundary=")) {
+                            headerBoundary = ct.substring(10);
+                        }
+                    }
+                    if (headerBoundary == null) {
+                        throw new Exception("Unable to find mjpeg boundary");
+                    }
+
                     //determine boundary pattern
                     //use the whole header as separator in case boundary locate in difference chunks
-                    Pattern pattern = Pattern.compile("--[_a-zA-Z0-9]*boundary\\s+(.*)\\r\\n\\r\\n",Pattern.DOTALL);
+                    Pattern pattern = Pattern.compile("--" + headerBoundary + "\\s+(.*)\\r\\n\\r\\n",Pattern.DOTALL);
                     Matcher matcher;
 
                     bis = new BufferedInputStream(connection.getInputStream());
@@ -338,6 +358,7 @@ public class MjpegView extends View{
                             if (matcher.find()) {
                                 //boundary is found
                                 boundary = matcher.group(0);
+
                                 boundaryIndex = checkHeaderStr.indexOf(boundary);
                                 boundaryIndex -= image.length;
 
