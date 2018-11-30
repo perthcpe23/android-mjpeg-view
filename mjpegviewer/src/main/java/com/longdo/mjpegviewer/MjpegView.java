@@ -311,24 +311,37 @@ public class MjpegView extends View{
                     connection.setDoInput(true);
                     connection.connect();
 
-                    String connectionType = connection.getHeaderField("Content-Type");
-                    if (connectionType == null) {
-                        throw new Exception("Unable to get connection type");
-                    }
-                    Log.e(tag,"ConnectionType " + connectionType);
+                    String headerBoundary = "[_a-zA-Z0-9]*boundary"; // Default boundary pattern
 
-                    String[] types = connectionType.split(";");
-                    if (types.length == 0) {
-                        throw new Exception("Unable to get connection type was empty");
-                    }
-                    String headerBoundary = null;
-                    for (String ct : types) {
-                        if (ct.trim().startsWith("boundary=")) {
-                            headerBoundary = ct.substring(10);
+                    try{
+                        // Try to extract a boundary from HTTP header first.
+                        // If the information is not presented, throw an exception and use default value instead.
+                        String contentType = connection.getHeaderField("Content-Type");
+                        if (contentType == null) {
+                            throw new Exception("Unable to get content type");
                         }
+
+                        String[] types = contentType.split(";");
+                        if (types.length == 0) {
+                            throw new Exception("Content type was empty");
+                        }
+
+                        String extractedBoundary = null;
+                        for (String ct : types) {
+                            String trimmedCt = ct.trim();
+                            if (trimmedCt.startsWith("boundary=")) {
+                                extractedBoundary = trimmedCt.substring(9); // Content after 'boundary='
+                            }
+                        }
+
+                        if (extractedBoundary == null) {
+                            throw new Exception("Unable to find mjpeg boundary");
+                        }
+
+                        headerBoundary = extractedBoundary;
                     }
-                    if (headerBoundary == null) {
-                        throw new Exception("Unable to find mjpeg boundary");
+                    catch(Exception e){
+                        Log.w(tag,"Cannot extract a boundary string from HTTP header with message: " + e.getMessage() + ". Use a default value instead.");
                     }
 
                     //determine boundary pattern
