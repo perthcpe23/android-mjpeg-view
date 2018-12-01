@@ -311,9 +311,42 @@ public class MjpegView extends View{
                     connection.setDoInput(true);
                     connection.connect();
 
+                    String headerBoundary = "[_a-zA-Z0-9]*boundary"; // Default boundary pattern
+
+                    try{
+                        // Try to extract a boundary from HTTP header first.
+                        // If the information is not presented, throw an exception and use default value instead.
+                        String contentType = connection.getHeaderField("Content-Type");
+                        if (contentType == null) {
+                            throw new Exception("Unable to get content type");
+                        }
+
+                        String[] types = contentType.split(";");
+                        if (types.length == 0) {
+                            throw new Exception("Content type was empty");
+                        }
+
+                        String extractedBoundary = null;
+                        for (String ct : types) {
+                            String trimmedCt = ct.trim();
+                            if (trimmedCt.startsWith("boundary=")) {
+                                extractedBoundary = trimmedCt.substring(9); // Content after 'boundary='
+                            }
+                        }
+
+                        if (extractedBoundary == null) {
+                            throw new Exception("Unable to find mjpeg boundary");
+                        }
+
+                        headerBoundary = extractedBoundary;
+                    }
+                    catch(Exception e){
+                        Log.w(tag,"Cannot extract a boundary string from HTTP header with message: " + e.getMessage() + ". Use a default value instead.");
+                    }
+
                     //determine boundary pattern
                     //use the whole header as separator in case boundary locate in difference chunks
-                    Pattern pattern = Pattern.compile("--[_a-zA-Z0-9]*boundary\\s+(.*)\\r\\n\\r\\n",Pattern.DOTALL);
+                    Pattern pattern = Pattern.compile("--" + headerBoundary + "\\s+(.*)\\r\\n\\r\\n",Pattern.DOTALL);
                     Matcher matcher;
 
                     bis = new BufferedInputStream(connection.getInputStream());
@@ -338,6 +371,7 @@ public class MjpegView extends View{
                             if (matcher.find()) {
                                 //boundary is found
                                 boundary = matcher.group(0);
+
                                 boundaryIndex = checkHeaderStr.indexOf(boundary);
                                 boundaryIndex -= image.length;
 
