@@ -17,3 +17,7 @@ mjpegviewer_v1.0.2.aar
   
 mjpegviewer_v1.0.4.aar
   - simply update build tools and gradle
+
+mjpegviewer_v1.0.5.aar
+  - support extracting stream boundary from HTTP header
+  - update builtool and gradle 
