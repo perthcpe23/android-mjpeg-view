@@ -455,6 +455,8 @@ public class MjpegView extends View{
         }
     }
 
+    // Pan and Pinch zoom
+
     private ScaleGestureDetector.OnScaleGestureListener scaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -480,8 +482,41 @@ public class MjpegView extends View{
 
     private ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(getContext(),scaleGestureListener);
 
+    private boolean isTouchDown;
+    private PointF touchStart = new PointF();
+    private Rect stateStart = new Rect();
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return scaleGestureDetector.onTouchEvent(event);
+        scaleGestureDetector.onTouchEvent(event);
+        if(event.getPointerCount() == 1) {
+            Log.e("touch", event.toString());
+
+            int id = event.getAction();
+            if(id == MotionEvent.ACTION_DOWN){
+                touchStart.set(event.getX(),event.getY());
+                stateStart.set(dst);
+                isTouchDown = true;
+            }
+            else if(id == MotionEvent.ACTION_UP || id == MotionEvent.ACTION_CANCEL){
+                isTouchDown = false;
+            }
+            else if(id == MotionEvent.ACTION_MOVE){
+                if(isTouchDown){
+                    int offsetLeft = (int) (stateStart.left + event.getX() - touchStart.x);
+                    int offsetTop =(int) (stateStart.top + event.getY() - touchStart.y);
+                    offsetLeft = Math.min(0,offsetLeft);
+                    offsetTop = Math.min(0,offsetTop);
+                    dst.left = offsetLeft;
+                    dst.top = offsetTop;
+//                    dst.right = stateStart.right + offsetLeft;
+//                    dst.bottom = stateStart.bottom + offsetTop;
+
+                    invalidate();
+                }
+            }
+        }
+
+        return true;
     }
 }
