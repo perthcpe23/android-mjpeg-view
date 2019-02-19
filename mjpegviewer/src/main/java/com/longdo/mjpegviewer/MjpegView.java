@@ -40,6 +40,7 @@ public class MjpegView extends View{
     private String url;
     private Bitmap lastBitmap;
     private MjpegDownloader downloader;
+    private final Object lockBitmap = new Object();
 
     private Paint paint;
     private Rect dst;
@@ -101,12 +102,15 @@ public class MjpegView extends View{
 
     public void setBitmap(Bitmap bm){
         Log.v(tag,"New frame");
-        if(lastBitmap != null && ((isUserForceConfigRecycle && isRecycleBitmap) || (!isUserForceConfigRecycle && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB))){
-            Log.v(tag,"Manually recycle bitmap");
-            lastBitmap.recycle();
-        }
 
-        lastBitmap = bm;
+        synchronized (lockBitmap) {
+            if (lastBitmap != null && ((isUserForceConfigRecycle && isRecycleBitmap) || (!isUserForceConfigRecycle && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB))) {
+                Log.v(tag, "Manually recycle bitmap");
+                lastBitmap.recycle();
+            }
+
+            lastBitmap = bm;
+        }
 
         if(context instanceof  Activity) {
             ((Activity) context).runOnUiThread(new Runnable() {
@@ -124,14 +128,20 @@ public class MjpegView extends View{
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if(lastBitmap != null && (lastImgWidth != lastBitmap.getWidth() || lastImgHeight != lastBitmap.getHeight())) {
-            vWidth = MeasureSpec.getSize(widthMeasureSpec);
-            vHeight = MeasureSpec.getSize(heightMeasureSpec);
+        boolean shouldRecalculateSize;
+        synchronized (lockBitmap) {
+            shouldRecalculateSize = lastBitmap != null && (lastImgWidth != lastBitmap.getWidth() || lastImgHeight != lastBitmap.getHeight());
+            if(shouldRecalculateSize) {
+                lastImgWidth = lastBitmap.getWidth();
+                lastImgHeight = lastBitmap.getHeight();
+            }
+        }
 
+        if(shouldRecalculateSize) {
             Log.d(tag,"Recalculate view/image size");
 
-            lastImgWidth = lastBitmap.getWidth();
-            lastImgHeight = lastBitmap.getHeight();
+            vWidth = MeasureSpec.getSize(widthMeasureSpec);
+            vHeight = MeasureSpec.getSize(heightMeasureSpec);
 
             if(mode == MODE_ORIGINAL){
                 drawX = (vWidth - lastImgWidth)/2;
@@ -241,18 +251,18 @@ public class MjpegView extends View{
 
     @Override
     protected void onDraw(Canvas c) {
-        if (c != null && lastBitmap != null && !lastBitmap.isRecycled()) {
-            if(isInEditMode()){
-
+        synchronized (lockBitmap) {
+            if (c != null && lastBitmap != null && !lastBitmap.isRecycled()) {
+                if (isInEditMode()) {
+                    // TODO: preview while edit xml
+                } else if (mode != MODE_ORIGINAL) {
+                    c.drawBitmap(lastBitmap, null, dst, paint);
+                } else {
+                    c.drawBitmap(lastBitmap, drawX, drawY, paint);
+                }
+            } else {
+                Log.d(tag, "Skip drawing, canvas is null or bitmap is not ready yet");
             }
-            else if (mode != MODE_ORIGINAL) {
-                c.drawBitmap(lastBitmap, null, dst, paint);
-            }
-            else{
-                c.drawBitmap(lastBitmap, drawX, drawY, paint);
-            }
-        } else {
-            Log.d(tag,"Skip drawing, canvas is null or bitmap is not ready yet");
         }
     }
 
