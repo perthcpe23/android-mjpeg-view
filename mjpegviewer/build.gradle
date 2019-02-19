@@ -41,7 +41,7 @@ ext {
 
     publishedGroupId = 'com.perth.android'
     libraryName = 'androidmjpegview'
-    artifact = 'mjpegview'
+    artifact = "$buildDir/outputs/aar/api-release.aar"
 
     libraryDescription = 'Custom View to display MJPEG.'
 
