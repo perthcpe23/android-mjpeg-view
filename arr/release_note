@@ -21,3 +21,6 @@ mjpegviewer_v1.0.4.aar
 mjpegviewer_v1.0.5.aar
   - support extracting stream boundary from HTTP header
   - update builtool and gradle 
+
+mjpegviewer_v1.0.6.aar
+  - fix issue #3: Trying to use a recycled bitmap exception
