@@ -6,10 +6,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.io.BufferedInputStream;
@@ -41,6 +44,7 @@ public class MjpegView extends View{
 
     private Paint paint;
     private Rect dst;
+    private Rect noScaleDst;
 
     private int mode = MODE_ORIGINAL;
     private int drawX,drawY, vWidth = -1, vHeight = -1;
@@ -232,6 +236,7 @@ public class MjpegView extends View{
                 //no need to check neither adjustHeight nor adjustHeight because in this mode image's size is always equals view's size.
             }
 
+            noScaleDst = new Rect(dst);
             setMeasuredDimension(vWidth, vHeight);
         }
         else {
@@ -458,5 +463,70 @@ public class MjpegView extends View{
         private void newFrame(Bitmap bitmap){
             setBitmap(bitmap);
         }
+    }
+
+    // Pan and Pinch zoom
+
+    private ScaleGestureDetector.OnScaleGestureListener scaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            float scale = detector.getScaleFactor();
+            dst.bottom = Math.max(noScaleDst.bottom,(int)(dst.bottom * scale));
+            dst.right = Math.max(noScaleDst.right,(int)(dst.right * scale));
+            dst.left = noScaleDst.left - (dst.right - noScaleDst.right)/2;
+            dst.top = noScaleDst.top - (dst.bottom - noScaleDst.bottom)/2;
+            invalidate();
+            return true;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+
+        }
+    };
+
+    private ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(getContext(),scaleGestureListener);
+
+    private boolean isTouchDown;
+    private PointF touchStart = new PointF();
+    private Rect stateStart = new Rect();
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        scaleGestureDetector.onTouchEvent(event);
+        if(event.getPointerCount() == 1) {
+            Log.e("touch", event.toString());
+
+            int id = event.getAction();
+            if(id == MotionEvent.ACTION_DOWN){
+                touchStart.set(event.getX(),event.getY());
+                stateStart.set(dst);
+                isTouchDown = true;
+            }
+            else if(id == MotionEvent.ACTION_UP || id == MotionEvent.ACTION_CANCEL){
+                isTouchDown = false;
+            }
+            else if(id == MotionEvent.ACTION_MOVE){
+                if(isTouchDown){
+                    int offsetLeft = (int) (stateStart.left + event.getX() - touchStart.x);
+                    int offsetTop =(int) (stateStart.top + event.getY() - touchStart.y);
+                    offsetLeft = Math.min(0,offsetLeft);
+                    offsetTop = Math.min(0,offsetTop);
+                    dst.left = offsetLeft;
+                    dst.top = offsetTop;
+//                    dst.right = stateStart.right + offsetLeft;
+//                    dst.bottom = stateStart.bottom + offsetTop;
+
+                    invalidate();
+                }
+            }
+        }
+
+        return true;
     }
 }
