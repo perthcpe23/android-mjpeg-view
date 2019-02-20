@@ -6,7 +6,7 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'mjpegviewer'
 
-    publishedGroupId = 'perthcpe23'
+    publishedGroupId = 'com.github.perthcpe23'
     libraryName = 'AndroidMjpegView'
     artifact = 'mjpegviewer'
 
