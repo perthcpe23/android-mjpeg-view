@@ -6,29 +6,16 @@ Android View for displaying MJPEG stream.
 - Only boundary is used to separate each jpeg image (each frame) from a stream. Content-length is ignored.
 - A boundary must be specified in an HTTP headr (Content-type). Otherwise a default boundary pattern will be used.
 
-You can download .arr at https://github.com/perthcpe23/android-mjpeg-view/tree/master/arr
-
 Basic usage<br/>
-1. Copy .aar to PROJECT_DIR/libs
-2. Include .aar in to your project by adding this to <b>app level</b> build.gradle file.
-```gradle
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-
-    // other repositories
-}
-```
-3. Declare a dependency in the same file
+1. Include a library in to your project by adding this to <b>app level</b> build.gradle file.
 ```gradle
 dependencies {
     // other dependencies
     
-    implementation(name: 'mjpegviewer_v1.0.4', ext: 'aar')
+    implementation 'com.github.perthcpe23:mjpegviewer:1.0.7'
 }
 ```
-4. Add a view to XML layout:
+2. Add a view to XML layout:
 ````xml
 <com.longdo.mjpegviewer.MjpegView
     android:id="@+id/mjpegview"
@@ -36,7 +23,7 @@ dependencies {
     android:layout_height="match_parent" />
 ````
 
-5. Specify mjpeg source and start streaming
+3. Specify mjpeg source and start streaming
 ````java
 MjpegView viewer = (MjpegView) findViewById(R.id.mjpegview);
 viewer.setMode(MjpegView.MODE_FIT_WIDTH);
@@ -47,7 +34,7 @@ viewer.startStream();
 //when user leaves application
 viewer.stopStream();
 ````
+* You can also download .aar at https://github.com/perthcpe23/android-mjpeg-view/tree/master/arr
 
 # Contact
 perth.s28@gmail.com
-Metamedia Technology (https://www.mm.co.th)
