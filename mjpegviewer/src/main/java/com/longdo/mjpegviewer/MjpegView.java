@@ -465,8 +465,6 @@ public class MjpegView extends View{
         }
     }
 
-    // Pan and Pinch zoom
-
     private ScaleGestureDetector.OnScaleGestureListener scaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -500,8 +498,6 @@ public class MjpegView extends View{
     public boolean onTouchEvent(MotionEvent event) {
         scaleGestureDetector.onTouchEvent(event);
         if(event.getPointerCount() == 1) {
-            Log.e("touch", event.getX() + ":" + event.getY());
-
             int id = event.getAction();
             if(id == MotionEvent.ACTION_DOWN){
                 touchStart.set(event.getX(),event.getY());
