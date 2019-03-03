@@ -8,13 +8,13 @@
     android:orientation="vertical" tools:context=".MainActivity">
 
     <com.longdo.mjpegviewer.MjpegView
-        android:background="#F00"
+        android:background="#000"
         android:id="@+id/mjpegview1"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 
     <com.longdo.mjpegviewer.MjpegView
-        android:background="#F00"
+        android:background="#000"
         android:id="@+id/mjpegview2"
         android:layout_width="match_parent"
         android:layout_height="0dp" />

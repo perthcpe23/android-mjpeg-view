@@ -500,7 +500,7 @@ public class MjpegView extends View{
     public boolean onTouchEvent(MotionEvent event) {
         scaleGestureDetector.onTouchEvent(event);
         if(event.getPointerCount() == 1) {
-            Log.e("touch", event.toString());
+            Log.e("touch", event.getX() + ":" + event.getY());
 
             int id = event.getAction();
             if(id == MotionEvent.ACTION_DOWN){
@@ -517,10 +517,17 @@ public class MjpegView extends View{
                     int offsetTop =(int) (stateStart.top + event.getY() - touchStart.y);
                     offsetLeft = Math.min(0,offsetLeft);
                     offsetTop = Math.min(0,offsetTop);
+
+                    int w = dst.right - dst.left;
+                    int h = dst.bottom - dst.top;
+
+                    offsetLeft = Math.max(getWidth() - w,offsetLeft);
+                    offsetTop = Math.max(getHeight() - h,offsetTop);
+
                     dst.left = offsetLeft;
                     dst.top = offsetTop;
-//                    dst.right = stateStart.right + offsetLeft;
-//                    dst.bottom = stateStart.bottom + offsetTop;
+                    dst.right = dst.left + w;
+                    dst.bottom = dst.top + h;
 
                     invalidate();
                 }
