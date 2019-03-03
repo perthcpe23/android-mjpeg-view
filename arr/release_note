@@ -24,3 +24,6 @@ mjpegviewer_v1.0.5.aar
 
 mjpegviewer_v1.0.6.aar
   - fix issue #3: Trying to use a recycled bitmap exception
+
+mjpegviewer_v1.0.7.aar
+  - remove accidently added pinch-zoom branch code
