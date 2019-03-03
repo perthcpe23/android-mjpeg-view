@@ -12,7 +12,7 @@ Basic usage<br/>
 dependencies {
     // other dependencies
     
-    implementation 'com.github.perthcpe23:mjpegviewer:1.0.6'
+    implementation 'com.github.perthcpe23:mjpegviewer:1.0.7'
 }
 ```
 2. Add a view to XML layout:
