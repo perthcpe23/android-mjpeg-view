@@ -28,7 +28,7 @@ dependencies {
 MjpegView viewer = (MjpegView) findViewById(R.id.mjpegview);
 viewer.setMode(MjpegView.MODE_FIT_WIDTH);
 viewer.setAdjustHeight(true);
-viewer.setUrl("http://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test");
+viewer.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test");
 viewer.startStream();
 
 //when user leaves application
