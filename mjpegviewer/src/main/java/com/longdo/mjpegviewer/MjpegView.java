@@ -94,6 +94,8 @@ public class MjpegView extends View{
 
     public void setMode(int mode) {
         this.mode = mode;
+        lastImgWidth = -1; // force re-calculate view size
+        requestLayout();
     }
 
     public void setBitmap(Bitmap bm){

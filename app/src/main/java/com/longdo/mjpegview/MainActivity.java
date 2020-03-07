@@ -1,9 +1,10 @@
 package com.longdo.mjpegview;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.longdo.mjpegviewer.MjpegView;
 
