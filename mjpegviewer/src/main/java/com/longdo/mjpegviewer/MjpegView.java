@@ -33,7 +33,7 @@ public class MjpegView extends View{
     private static final int CHUNK_SIZE = 4096;
     private final String tag = getClass().getSimpleName();
 
-    private Context context;
+    private final Context context;
     private String url;
     private Bitmap lastBitmap;
     private MjpegDownloader downloader;
@@ -102,7 +102,7 @@ public class MjpegView extends View{
         Log.v(tag,"New frame");
 
         synchronized (lockBitmap) {
-            if (lastBitmap != null && ((isUserForceConfigRecycle && isRecycleBitmap) || (!isUserForceConfigRecycle && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB))) {
+            if (lastBitmap != null && isUserForceConfigRecycle && isRecycleBitmap) {
                 Log.v(tag, "Manually recycle bitmap");
                 lastBitmap.recycle();
             }
@@ -314,7 +314,7 @@ public class MjpegView extends View{
 
                 HttpURLConnection connection = null;
                 BufferedInputStream bis = null;
-                URL serverUrl = null;
+                URL serverUrl;
 
                 try {
                     serverUrl = new URL(url);
@@ -409,7 +409,7 @@ public class MjpegView extends View{
                                 image = addByte(image, read, 0, readByte);
                             }
                         } catch (Exception e) {
-                            if(e != null && e.getMessage() != null) {
+                            if(e.getMessage() != null) {
                                 Log.e(tag, e.getMessage());
                             }
                             break;
@@ -417,7 +417,7 @@ public class MjpegView extends View{
                     }
 
                 } catch (Exception e) {
-                    if(e != null && e.getMessage() != null) {
+                    if(e.getMessage() != null) {
                         Log.e(tag, e.getMessage());
                     }
                 }
@@ -427,7 +427,7 @@ public class MjpegView extends View{
                     connection.disconnect();
                     Log.i(tag,"disconnected with " + url);
                 } catch (Exception e) {
-                    if(e != null && e.getMessage() != null) {
+                    if(e.getMessage() != null) {
                         Log.e(tag, e.getMessage());
                     }
                 }
@@ -436,7 +436,7 @@ public class MjpegView extends View{
                     try {
                         Thread.sleep(msecWaitAfterReadImageError);
                     } catch (InterruptedException e) {
-                        if(e != null && e.getMessage() != null) {
+                        if(e.getMessage() != null) {
                             Log.e(tag, e.getMessage());
                         }
                     }
