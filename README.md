@@ -34,6 +34,12 @@ viewer.startStream();
 //when user leaves application
 viewer.stopStream();
 ````
+
+4. Don't forget to add internet access permission to Android manifests file
+````java
+<uses-permission android:name="android.permission.INTERNET" />
+````
+
 * You can also download .aar at https://github.com/perthcpe23/android-mjpeg-view/tree/master/arr
 
 # Contact
