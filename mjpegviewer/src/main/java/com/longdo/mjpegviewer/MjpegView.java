@@ -467,7 +467,7 @@ public class MjpegView extends View{
         }
     }
 
-    private ScaleGestureDetector.OnScaleGestureListener scaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
+    private final ScaleGestureDetector.OnScaleGestureListener scaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             float scale = detector.getScaleFactor();
@@ -478,33 +478,49 @@ public class MjpegView extends View{
             int newH = (int)(oldH * scale);
 
             // TODO: also use appropriate centroid
-            int newCX = dst.left + newW/2;
-            int newCY = dst.top + newH/2;
             int screenCX = getWidth()/2;
             int screenCY = getHeight()/2;
 
-            Log.i("scale", newCX + ":" + newCY + ":" + screenCX + ":" + screenCY);
+            float CYRatio = (screenCY - dst.top)/(float)oldH;
+            float CXRatio = (screenCX - dst.left)/(float)oldW;
 
-            int newBottom = dst.bottom + (newH - oldH)/2;
-            int newTop = dst.top - (newH - oldH)/2;
-            int newRight = dst.right + (newW - oldW)/2;
-            int newLeft = dst.left - (newW - oldW)/2;
+            int newTop = (int) (dst.top - (newH - oldH) * CYRatio);
+            int newLeft = (int) (dst.left - (newW - oldW) * CXRatio);
+            int newBottom =  newTop + newH;
+            int newRight = newLeft + newW;
 
-            if (newTop >= 0 || newLeft >= 0 || newBottom <= getHeight() || newRight <= getWidth()) {
-                return true;
+            if (newH >= getHeight()) {
+                // never leave a blank space
+                if (newTop > 0) {
+                    newTop = 0;
+                    newBottom = newH;
+                } else if (newBottom < getHeight()) {
+                    newBottom = getHeight();
+                    newTop = newBottom - newH;
+                }
+
+                dst.top = newTop;
+                dst.bottom = newBottom;
             }
 
-            dst.left = newLeft;
-            dst.top = newTop;
-            dst.right = newRight;
-            dst.bottom = newBottom;
+            if (newW >= getWidth()) {
+                // never leave a blank space
+                if (newLeft > 0) {
+                    newLeft = 0;
+                    newRight = newW;
+                } else if (newRight < getWidth()) {
+                    newRight = getWidth();
+                    newLeft = newRight - newW;
+                }
 
-            // never smaller than original size
+                dst.left = newLeft;
+                dst.right = newRight;
+            }
 
             // force re-render
             invalidate();
 
-            // prevent onTouch to operate
+            // prevent onTouch to operate when zooming
             isTouchDown = false;
 
             return true;
