@@ -27,3 +27,7 @@ mjpegviewer_v1.0.6.aar
 
 mjpegviewer_v1.0.7.aar
   - remove accidently added pinch-zoom branch code
+
+mjpegviewer_v1.0.8.aar
+  - use androidX
+  - update layout when change display mode
