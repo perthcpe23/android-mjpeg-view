@@ -103,11 +103,11 @@ public class MjpegView extends View{
     }
 
     public void setBitmap(Bitmap bm){
-        Log.v(tag,"New frame");
+        // Log.v(tag,"New frame");
 
         synchronized (lockBitmap) {
             if (lastBitmap != null && isUserForceConfigRecycle && isRecycleBitmap) {
-                Log.v(tag, "Manually recycle bitmap");
+                // Log.v(tag, "Manually recycle bitmap");
                 lastBitmap.recycle();
             }
 
@@ -471,11 +471,16 @@ public class MjpegView extends View{
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             float scale = detector.getScaleFactor();
+
+            // never smaller than original size
             dst.bottom = Math.max(noScaleDst.bottom,(int)(dst.bottom * scale));
             dst.right = Math.max(noScaleDst.right,(int)(dst.right * scale));
-            dst.left = noScaleDst.left - (dst.right - noScaleDst.right)/2;
-            dst.top = noScaleDst.top - (dst.bottom - noScaleDst.bottom)/2;
+            dst.left = noScaleDst.left - (dst.right - noScaleDst.right);
+            dst.top = noScaleDst.top - (dst.bottom - noScaleDst.bottom);
+
+            // force re-render
             invalidate();
+
             return true;
         }
 
@@ -490,15 +495,14 @@ public class MjpegView extends View{
         }
     };
 
-    private ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(getContext(),scaleGestureListener);
+    private final ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(getContext(),scaleGestureListener);
 
     private boolean isTouchDown;
-    private PointF touchStart = new PointF();
-    private Rect stateStart = new Rect();
+    private final PointF touchStart = new PointF();
+    private final Rect stateStart = new Rect();
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        scaleGestureDetector.onTouchEvent(event);
         if(event.getPointerCount() == 1) {
             int id = event.getAction();
             if(id == MotionEvent.ACTION_DOWN){
@@ -513,12 +517,12 @@ public class MjpegView extends View{
                 if(isTouchDown){
                     int offsetLeft = (int) (stateStart.left + event.getX() - touchStart.x);
                     int offsetTop =(int) (stateStart.top + event.getY() - touchStart.y);
-                    offsetLeft = Math.min(0,offsetLeft);
-                    offsetTop = Math.min(0,offsetTop);
-
                     int w = dst.right - dst.left;
                     int h = dst.bottom - dst.top;
 
+                    // keep image in the frame -- no blank space on every side
+                    offsetLeft = Math.min(0,offsetLeft);
+                    offsetTop = Math.min(0,offsetTop);
                     offsetLeft = Math.max(getWidth() - w,offsetLeft);
                     offsetTop = Math.max(getHeight() - h,offsetTop);
 
@@ -530,6 +534,8 @@ public class MjpegView extends View{
                     invalidate();
                 }
             }
+        } else {
+            scaleGestureDetector.onTouchEvent(event);
         }
 
         return true;
