@@ -31,3 +31,7 @@ mjpegviewer_v1.0.7.aar
 mjpegviewer_v1.0.8.aar
   - use androidX
   - update layout when change display mode
+
+mjpegviewer_v1.0.9.aar
+  - support pinch-zoom and pan
+  - move to JitPack
