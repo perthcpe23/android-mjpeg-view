@@ -7,27 +7,39 @@ Android View for displaying MJPEG stream.
 - A boundary must be specified in an HTTP headr (Content-type). Otherwise a default boundary pattern will be used.
 
 Basic usage<br/>
-1. Include a library in to your project by adding this to <b>app level</b> build.gradle file.
+1. This library is hosted on JitPack, so add it in your <b>root</b> build.gradle at the end of repositories.
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+2. Include a library in to your project by adding this to <b>app level</b> build.gradle file.
 ```gradle
 dependencies {
     // other dependencies
     
-    implementation 'com.github.perthcpe23:mjpegviewer:1.0.8'
+    implementation 'com.github.perthcpe23:android-mjpeg-view:v1.0.9'
 }
 ```
-2. Add a view to XML layout:
+
+3. Add a view to XML layout:
 ````xml
 <com.longdo.mjpegviewer.MjpegView
     android:id="@+id/mjpegview"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="wrap_content" />
 ````
 
-3. Specify mjpeg source and start streaming
+4. Specify mjpeg source and start streaming
 ````java
 MjpegView viewer = (MjpegView) findViewById(R.id.mjpegview);
 viewer.setMode(MjpegView.MODE_FIT_WIDTH);
 viewer.setAdjustHeight(true);
+viewer.setSupportPinchZoomAndPan(true);
 viewer.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test");
 viewer.startStream();
 
@@ -35,7 +47,7 @@ viewer.startStream();
 viewer.stopStream();
 ````
 
-4. Don't forget to add internet access permission to Android manifests file
+5. Don't forget to add internet access permission to Android manifests file
 ````java
 <uses-permission android:name="android.permission.INTERNET" />
 ````
