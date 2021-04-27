@@ -472,14 +472,40 @@ public class MjpegView extends View{
         public boolean onScale(ScaleGestureDetector detector) {
             float scale = detector.getScaleFactor();
 
+            int oldW = dst.right - dst.left;
+            int oldH = dst.bottom - dst.top;
+            int newW = (int)(oldW * scale);
+            int newH = (int)(oldH * scale);
+
+            // TODO: also use appropriate centroid
+            int newCX = dst.left + newW/2;
+            int newCY = dst.top + newH/2;
+            int screenCX = getWidth()/2;
+            int screenCY = getHeight()/2;
+
+            Log.i("scale", newCX + ":" + newCY + ":" + screenCX + ":" + screenCY);
+
+            int newBottom = dst.bottom + (newH - oldH)/2;
+            int newTop = dst.top - (newH - oldH)/2;
+            int newRight = dst.right + (newW - oldW)/2;
+            int newLeft = dst.left - (newW - oldW)/2;
+
+            if (newTop >= 0 || newLeft >= 0 || newBottom <= getHeight() || newRight <= getWidth()) {
+                return true;
+            }
+
+            dst.left = newLeft;
+            dst.top = newTop;
+            dst.right = newRight;
+            dst.bottom = newBottom;
+
             // never smaller than original size
-            dst.bottom = Math.max(noScaleDst.bottom,(int)(dst.bottom * scale));
-            dst.right = Math.max(noScaleDst.right,(int)(dst.right * scale));
-            dst.left = noScaleDst.left - (dst.right - noScaleDst.right);
-            dst.top = noScaleDst.top - (dst.bottom - noScaleDst.bottom);
 
             // force re-render
             invalidate();
+
+            // prevent onTouch to operate
+            isTouchDown = false;
 
             return true;
         }
