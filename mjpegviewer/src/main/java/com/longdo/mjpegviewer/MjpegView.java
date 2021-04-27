@@ -56,6 +56,7 @@ public class MjpegView extends View{
 
     private boolean isRecycleBitmap;
     private boolean isUserForceConfigRecycle;
+    private boolean isSupportPinchZoomAndPan;
 
     public MjpegView(Context context){
         super(context);
@@ -299,6 +300,14 @@ public class MjpegView extends View{
     public void setRecycleBitmap(boolean recycleBitmap) {
         isUserForceConfigRecycle = true;
         isRecycleBitmap = recycleBitmap;
+    }
+
+    public boolean getSupportPinchZoomAndPan() {
+        return isSupportPinchZoomAndPan;
+    }
+
+    public void setSupportPinchZoomAndPan(boolean supportPinchZoomAndPan) {
+        isSupportPinchZoomAndPan = supportPinchZoomAndPan;
     }
 
     class MjpegDownloader extends Thread{
@@ -545,7 +554,9 @@ public class MjpegView extends View{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(event.getPointerCount() == 1) {
+        if (!isSupportPinchZoomAndPan) {
+            return false;
+        } else if(event.getPointerCount() == 1) {
             int id = event.getAction();
             if(id == MotionEvent.ACTION_DOWN){
                 touchStart.set(event.getX(),event.getY());

@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         view2 = findViewById(R.id.mjpegview2);
         view2.setAdjustHeight(true);
+        view2.setSupportPinchZoomAndPan(true);
         //view.setAdjustWidth(true);
         view2.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
