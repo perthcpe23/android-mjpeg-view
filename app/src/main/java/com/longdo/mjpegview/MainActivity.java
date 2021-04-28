@@ -3,50 +3,50 @@ package com.longdo.mjpegview;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.longdo.mjpegviewer.MjpegView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    private MjpegView view1;
-    private MjpegView view2;
+    private ListView listview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        view1 = findViewById(R.id.mjpegview1);
-        view1.setAdjustHeight(true);
-        //view.setAdjustWidth(true);
-        view1.setMode(MjpegView.MODE_FIT_WIDTH);
-        //view.setMsecWaitAfterReadImageError(1000);
-        view1.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.182.114:1111");
-        view1.setRecycleBitmap(true);
+        List<String> cameraList = new ArrayList<>();
+        cameraList.add("");
+        cameraList.add("");
+        cameraList.add("");
+        cameraList.add("");
+        cameraList.add("");
+        cameraList.add("");
+        cameraList.add("");
+        cameraList.add("");
 
-        view2 = findViewById(R.id.mjpegview2);
-        view2.setAdjustHeight(true);
-        view2.setSupportPinchZoomAndPan(true);
-        //view.setAdjustWidth(true);
-        view2.setMode(MjpegView.MODE_FIT_WIDTH);
-        //view.setMsecWaitAfterReadImageError(1000);
-        view2.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=61.91.182.114:1112");
+        CustomAdapter adapter = new CustomAdapter(this, R.layout.list_layout, cameraList);
+
+        listview = findViewById(R.id.listview);
+        listview.setAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
-        view1.startStream();
-        view2.startStream();
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        view1.stopStream();
-        view2.stopStream();
         super.onPause();
     }
 
@@ -74,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        view1.stopStream();
-        view2.stopStream();
         super.onStop();
     }
 }

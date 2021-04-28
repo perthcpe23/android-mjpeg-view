@@ -44,7 +44,6 @@ public class MjpegView extends View{
 
     private Paint paint;
     private Rect dst;
-    private Rect noScaleDst;
 
     private int mode = MODE_ORIGINAL;
     private int drawX,drawY, vWidth = -1, vHeight = -1;
@@ -239,7 +238,6 @@ public class MjpegView extends View{
                 //no need to check neither adjustHeight nor adjustHeight because in this mode image's size is always equals view's size.
             }
 
-            noScaleDst = new Rect(dst);
             setMeasuredDimension(vWidth, vHeight);
         }
         else {
