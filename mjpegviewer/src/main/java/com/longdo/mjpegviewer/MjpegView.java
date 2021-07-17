@@ -387,7 +387,6 @@ public class MjpegView extends View{
                             addByte(read, 0, readByte, false);
                             start = System.nanoTime();
                             checkHeaderStr = new String(currentImageBody, 0, currentImageBodyLength, "ASCII");
-                            Log.d("performance", (System.nanoTime() - start)/1000 + "");
                             totalAddByteMicroSec += (System.nanoTime() - start)/1000;
 
                             start = System.nanoTime();
@@ -396,9 +395,12 @@ public class MjpegView extends View{
                             totalFindPatternMicroSec += (System.nanoTime() - start)/1000;
 
                             if (isFound) {
+                                // delete and re-add because if body contains boundary, it means body is over one image already
+                                // we want exact one image content
                                 delByte(readByte);
+
                                 Log.d("performance", String.format("matcher until new frame %dms", totalFindPatternMicroSec));
-                                Log.d("performance", String.format("addByte until new frame %dms", totalAddByteMicroSec ));
+                                Log.d("performance", String.format("new String until new frame %dms", totalAddByteMicroSec ));
                                 Log.d("performance", String.format("read until new frame %dms", totalReadMicroSec ));
 
                                 //boundary is found
