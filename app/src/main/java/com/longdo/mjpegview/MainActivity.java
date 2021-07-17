@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         //view.setAdjustWidth(true);
         view1.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view1.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
+        view1.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg?type=fhd_hi_quality");
         view1.setRecycleBitmap(true);
 
         view2 = findViewById(R.id.mjpegview2);
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         view1.startStream();
-        view2.startStream();
+//        view2.startStream();
         super.onResume();
     }
 

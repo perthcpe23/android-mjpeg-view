@@ -299,6 +299,7 @@ public class MjpegView extends View{
 
     class MjpegDownloader extends Thread{
         private boolean run = true;
+        private long lastFrameTimestamp = 0;
 
         public void cancel(){
             run = false;
@@ -364,21 +365,37 @@ public class MjpegView extends View{
                     int readByte, boundaryIndex;
                     String checkHeaderStr, boundary;
 
+                    int totalFindPatternMsec = 0;
+                    int totalAddByteMsec = 0;
+                    int totalReadMsec = 0;
+
                     //always keep reading images from server
                     while (run) {
                         try {
+                            long start = System.currentTimeMillis();
                             readByte = bis.read(read);
+                            totalReadMsec += System.currentTimeMillis() - start;
 
                             //no more data
                             if (readByte == -1) {
                                 break;
                             }
 
+                            start = System.currentTimeMillis();
                             tmpCheckBoundry = addByte(image, read, 0, readByte);
                             checkHeaderStr = new String(tmpCheckBoundry, "ASCII");
+                            totalAddByteMsec += System.currentTimeMillis() - start;
 
+                            start = System.currentTimeMillis();
                             matcher = pattern.matcher(checkHeaderStr);
-                            if (matcher.find()) {
+                            boolean isFound = matcher.find();
+                            totalFindPatternMsec += System.currentTimeMillis() - start;
+
+                            if (isFound) {
+                                Log.d("performance", String.format("matcher until new frame %dms", totalFindPatternMsec));
+                                Log.d("performance", String.format("addByte until new frame %dms", totalAddByteMsec ));
+                                Log.d("performance", String.format("read until new frame %dms", totalReadMsec ));
+
                                 //boundary is found
                                 boundary = matcher.group(0);
 
@@ -391,7 +408,15 @@ public class MjpegView extends View{
                                     image = delByte(image, -boundaryIndex);
                                 }
 
+                                start = System.currentTimeMillis();
                                 Bitmap outputImg = BitmapFactory.decodeByteArray(image, 0, image.length);
+                                long decodeByteArray = System.currentTimeMillis() - start;
+                                Log.d("performance", String.format("decodeByteArray %dms", decodeByteArray));
+                                Log.d("performance", String.format("total until new frame %dms", decodeByteArray + totalFindPatternMsec + totalAddByteMsec + totalReadMsec ));
+                                totalFindPatternMsec = 0;
+                                totalAddByteMsec = 0;
+                                totalReadMsec = 0;
+
                                 if (outputImg != null) {
                                     if(run) {
                                         newFrame(outputImg);
@@ -456,6 +481,11 @@ public class MjpegView extends View{
         }
 
         private void newFrame(Bitmap bitmap){
+            if (lastFrameTimestamp > 0) {
+                Log.d("performance", "------------ " + (System.currentTimeMillis() - lastFrameTimestamp) + "ms ------------");
+            }
+
+            lastFrameTimestamp = System.currentTimeMillis();
             setBitmap(bitmap);
         }
     }
