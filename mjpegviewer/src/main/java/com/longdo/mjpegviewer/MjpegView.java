@@ -301,6 +301,9 @@ public class MjpegView extends View{
         private boolean run = true;
         private long lastFrameTimestamp = 0;
 
+        byte[] currentImageBody = new byte[(int) 1e6];
+        int currentImageBodyLength = 0;
+
         public void cancel(){
             run = false;
         }
@@ -361,61 +364,63 @@ public class MjpegView extends View{
                     Matcher matcher;
 
                     bis = new BufferedInputStream(connection.getInputStream());
-                    byte[] image = new byte[0], read = new byte[CHUNK_SIZE], tmpCheckBoundry;
+                    byte[] read = new byte[CHUNK_SIZE], tmpCheckBoundary;
                     int readByte, boundaryIndex;
                     String checkHeaderStr, boundary;
 
-                    int totalFindPatternMsec = 0;
-                    int totalAddByteMsec = 0;
-                    int totalReadMsec = 0;
+                    long totalFindPatternMicroSec = 0;
+                    long totalAddByteMicroSec = 0;
+                    long totalReadMicroSec = 0;
 
                     //always keep reading images from server
                     while (run) {
                         try {
-                            long start = System.currentTimeMillis();
+                            long start = System.nanoTime();
                             readByte = bis.read(read);
-                            totalReadMsec += System.currentTimeMillis() - start;
+                            totalReadMicroSec += (System.nanoTime() - start)/1000;
 
                             //no more data
                             if (readByte == -1) {
                                 break;
                             }
 
-                            start = System.currentTimeMillis();
-                            tmpCheckBoundry = addByte(image, read, 0, readByte);
-                            checkHeaderStr = new String(tmpCheckBoundry, "ASCII");
-                            totalAddByteMsec += System.currentTimeMillis() - start;
+                            addByte(read, 0, readByte, false);
+                            start = System.nanoTime();
+                            checkHeaderStr = new String(currentImageBody, 0, currentImageBodyLength, "ASCII");
+                            Log.d("performance", (System.nanoTime() - start)/1000 + "");
+                            totalAddByteMicroSec += (System.nanoTime() - start)/1000;
 
-                            start = System.currentTimeMillis();
+                            start = System.nanoTime();
                             matcher = pattern.matcher(checkHeaderStr);
                             boolean isFound = matcher.find();
-                            totalFindPatternMsec += System.currentTimeMillis() - start;
+                            totalFindPatternMicroSec += (System.nanoTime() - start)/1000;
 
                             if (isFound) {
-                                Log.d("performance", String.format("matcher until new frame %dms", totalFindPatternMsec));
-                                Log.d("performance", String.format("addByte until new frame %dms", totalAddByteMsec ));
-                                Log.d("performance", String.format("read until new frame %dms", totalReadMsec ));
+                                delByte(readByte);
+                                Log.d("performance", String.format("matcher until new frame %dms", totalFindPatternMicroSec));
+                                Log.d("performance", String.format("addByte until new frame %dms", totalAddByteMicroSec ));
+                                Log.d("performance", String.format("read until new frame %dms", totalReadMicroSec ));
 
                                 //boundary is found
                                 boundary = matcher.group(0);
 
                                 boundaryIndex = checkHeaderStr.indexOf(boundary);
-                                boundaryIndex -= image.length;
+                                boundaryIndex -= currentImageBodyLength;
 
                                 if (boundaryIndex > 0) {
-                                    image = addByte(image, read, 0, boundaryIndex);
+                                    addByte(read, 0, boundaryIndex, false);
                                 } else {
-                                    image = delByte(image, -boundaryIndex);
+                                    delByte(boundaryIndex);
                                 }
 
-                                start = System.currentTimeMillis();
-                                Bitmap outputImg = BitmapFactory.decodeByteArray(image, 0, image.length);
-                                long decodeByteArray = System.currentTimeMillis() - start;
-                                Log.d("performance", String.format("decodeByteArray %dms", decodeByteArray));
-                                Log.d("performance", String.format("total until new frame %dms", decodeByteArray + totalFindPatternMsec + totalAddByteMsec + totalReadMsec ));
-                                totalFindPatternMsec = 0;
-                                totalAddByteMsec = 0;
-                                totalReadMsec = 0;
+                                start = System.nanoTime();
+                                Bitmap outputImg = BitmapFactory.decodeByteArray(currentImageBody, 0, currentImageBodyLength);
+                                long decodeByteArrayMicroSec = (System.nanoTime() - start)/1000;
+                                Log.d("performance", String.format("decodeByteArray %dms", decodeByteArrayMicroSec));
+                                Log.d("performance", String.format("total until new frame %dms", decodeByteArrayMicroSec + totalFindPatternMicroSec + totalAddByteMicroSec + totalReadMicroSec ));
+                                totalFindPatternMicroSec = 0;
+                                totalAddByteMicroSec = 0;
+                                totalReadMicroSec = 0;
 
                                 if (outputImg != null) {
                                     if(run) {
@@ -427,9 +432,9 @@ public class MjpegView extends View{
 
                                 int headerIndex = boundaryIndex + boundary.length();
 
-                                image = addByte(new byte[0], read, headerIndex, readByte - headerIndex);
+                                addByte(read, headerIndex, readByte - headerIndex, true);
                             } else {
-                                image = addByte(image, read, 0, readByte);
+//                                addByte(read, 0, readByte, false);
                             }
                         } catch (Exception e) {
                             if(e.getMessage() != null) {
@@ -467,17 +472,18 @@ public class MjpegView extends View{
             }
         }
 
-        private byte[] addByte(byte[] base, byte[] add, int addIndex, int length) {
-            byte[] tmp = new byte[base.length + length];
-            System.arraycopy(base, 0, tmp, 0, base.length);
-            System.arraycopy(add, addIndex, tmp, base.length, length);
-            return tmp;
+        private void addByte(byte[] src, int srcPos, int length, boolean reset) {
+            if (reset) {
+                System.arraycopy(src, srcPos, currentImageBody, 0, length);
+                currentImageBodyLength = 0;
+            } else {
+                System.arraycopy(src, srcPos, currentImageBody, currentImageBodyLength, length);
+            }
+            currentImageBodyLength += length;
         }
 
-        private byte[] delByte(byte[] base, int del) {
-            byte[] tmp = new byte[base.length - del];
-            System.arraycopy(base, 0, tmp, 0, tmp.length);
-            return tmp;
+        private void delByte(int del) {
+            currentImageBodyLength -= del;
         }
 
         private void newFrame(Bitmap bitmap){
