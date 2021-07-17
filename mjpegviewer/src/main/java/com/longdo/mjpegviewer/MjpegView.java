@@ -34,26 +34,23 @@ public class MjpegView extends View{
 
     private static final int WAIT_AFTER_READ_IMAGE_ERROR_MSEC = 5000;
     private static final int CHUNK_SIZE = 4096;
-    private final String tag = getClass().getSimpleName();
+    private static final String DEFAULT_BOUNDARY_REGEX = "[_a-zA-Z0-9]*boundary";
 
+    private final String tag = getClass().getSimpleName();
     private final Context context;
+    private final Object lockBitmap = new Object();
+
     private String url;
     private Bitmap lastBitmap;
     private MjpegDownloader downloader;
-    private final Object lockBitmap = new Object();
-
     private Paint paint;
     private Rect dst;
-    private Rect noScaleDst;
 
     private int mode = MODE_ORIGINAL;
     private int drawX,drawY, vWidth = -1, vHeight = -1;
     private int lastImgWidth, lastImgHeight;
-
     private boolean adjustWidth, adjustHeight;
-
     private int msecWaitAfterReadImageError = WAIT_AFTER_READ_IMAGE_ERROR_MSEC;
-
     private boolean isRecycleBitmap;
     private boolean isUserForceConfigRecycle;
     private boolean isSupportPinchZoomAndPan;
@@ -104,11 +101,8 @@ public class MjpegView extends View{
     }
 
     public void setBitmap(Bitmap bm){
-        // Log.v(tag,"New frame");
-
         synchronized (lockBitmap) {
             if (lastBitmap != null && isUserForceConfigRecycle && isRecycleBitmap) {
-                // Log.v(tag, "Manually recycle bitmap");
                 lastBitmap.recycle();
             }
 
@@ -140,9 +134,7 @@ public class MjpegView extends View{
             }
         }
 
-        if(shouldRecalculateSize) {
-            Log.d(tag,"Recalculate view/image size");
-
+        if (shouldRecalculateSize) {
             vWidth = MeasureSpec.getSize(widthMeasureSpec);
             vHeight = MeasureSpec.getSize(heightMeasureSpec);
 
@@ -238,27 +230,22 @@ public class MjpegView extends View{
                 dst.set(0,0,vWidth,vHeight);
                 //no need to check neither adjustHeight nor adjustHeight because in this mode image's size is always equals view's size.
             }
-
-            noScaleDst = new Rect(dst);
-            setMeasuredDimension(vWidth, vHeight);
         }
         else {
             if(vWidth == -1 || vHeight == -1){
                 vWidth = MeasureSpec.getSize(widthMeasureSpec);
                 vHeight = MeasureSpec.getSize(heightMeasureSpec);
             }
-
-            setMeasuredDimension(vWidth, vHeight);
         }
+
+        setMeasuredDimension(vWidth, vHeight);
     }
 
     @Override
     protected void onDraw(Canvas c) {
         synchronized (lockBitmap) {
             if (c != null && lastBitmap != null && !lastBitmap.isRecycled()) {
-                if (isInEditMode()) {
-                    // TODO: preview while edit xml
-                } else if (mode != MODE_ORIGINAL) {
+                if (mode != MODE_ORIGINAL) {
                     c.drawBitmap(lastBitmap, null, dst, paint);
                 } else {
                     c.drawBitmap(lastBitmap, drawX, drawY, paint);
@@ -311,7 +298,6 @@ public class MjpegView extends View{
     }
 
     class MjpegDownloader extends Thread{
-
         private boolean run = true;
 
         public void cancel(){
@@ -325,19 +311,17 @@ public class MjpegView extends View{
         @Override
         public void run() {
             while(run) {
-
                 HttpURLConnection connection = null;
                 BufferedInputStream bis = null;
                 URL serverUrl;
 
                 try {
                     serverUrl = new URL(url);
-
                     connection = (HttpURLConnection) serverUrl.openConnection();
                     connection.setDoInput(true);
                     connection.connect();
 
-                    String headerBoundary = "[_a-zA-Z0-9]*boundary"; // Default boundary pattern
+                    String headerBoundary = DEFAULT_BOUNDARY_REGEX;
 
                     try{
                         // Try to extract a boundary from HTTP header first.
@@ -546,11 +530,10 @@ public class MjpegView extends View{
         }
     };
 
-    private final ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(getContext(),scaleGestureListener);
-
     private boolean isTouchDown;
     private final PointF touchStart = new PointF();
     private final Rect stateStart = new Rect();
+    private final ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(getContext(),scaleGestureListener);
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
