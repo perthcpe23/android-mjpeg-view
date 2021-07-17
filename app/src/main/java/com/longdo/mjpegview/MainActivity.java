@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         //view.setAdjustWidth(true);
         view1.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view1.setUrl("https://server.hafka.co/mjpeg/");
+        view1.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
         view1.setRecycleBitmap(true);
 
         view2 = findViewById(R.id.mjpegview2);
