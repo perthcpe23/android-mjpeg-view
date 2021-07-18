@@ -416,7 +416,6 @@ public class MjpegView extends View{
 
     class MjpegDownloader extends Thread{
         private boolean run = true;
-        private long lastFrameTimestamp = 0;
 
         byte[] currentImageBody = new byte[(int) 1e6];
         int currentImageBodyLength = 0;
@@ -593,11 +592,6 @@ public class MjpegView extends View{
         }
 
         private void newFrame(Bitmap bitmap){
-            if (lastFrameTimestamp > 0) {
-                Log.d("performance", "------------ " + (System.currentTimeMillis() - lastFrameTimestamp) + "ms ------------");
-            }
-
-            lastFrameTimestamp = System.currentTimeMillis();
             setBitmap(bitmap);
         }
     }
