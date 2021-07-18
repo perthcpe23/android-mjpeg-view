@@ -297,207 +297,6 @@ public class MjpegView extends View{
         isSupportPinchZoomAndPan = supportPinchZoomAndPan;
     }
 
-    class MjpegDownloader extends Thread{
-        private boolean run = true;
-        private long lastFrameTimestamp = 0;
-
-        byte[] currentImageBody = new byte[(int) 1e6];
-        int currentImageBodyLength = 0;
-
-        public void cancel(){
-            run = false;
-        }
-
-        public boolean isRunning(){
-            return run;
-        }
-
-        @Override
-        public void run() {
-            while(run) {
-                HttpURLConnection connection = null;
-                BufferedInputStream bis = null;
-                URL serverUrl;
-
-                try {
-                    serverUrl = new URL(url);
-                    connection = (HttpURLConnection) serverUrl.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-
-                    String headerBoundary = DEFAULT_BOUNDARY_REGEX;
-
-                    try{
-                        // Try to extract a boundary from HTTP header first.
-                        // If the information is not presented, throw an exception and use default value instead.
-                        String contentType = connection.getHeaderField("Content-Type");
-                        if (contentType == null) {
-                            throw new Exception("Unable to get content type");
-                        }
-
-                        String[] types = contentType.split(";");
-                        if (types.length == 0) {
-                            throw new Exception("Content type was empty");
-                        }
-
-                        String extractedBoundary = null;
-                        for (String ct : types) {
-                            String trimmedCt = ct.trim();
-                            if (trimmedCt.startsWith("boundary=")) {
-                                extractedBoundary = trimmedCt.substring(9); // Content after 'boundary='
-                            }
-                        }
-
-                        if (extractedBoundary == null) {
-                            throw new Exception("Unable to find mjpeg boundary");
-                        }
-
-                        headerBoundary = extractedBoundary;
-                    }
-                    catch(Exception e){
-                        Log.w(tag,"Cannot extract a boundary string from HTTP header with message: " + e.getMessage() + ". Use a default value instead.");
-                    }
-
-                    //determine boundary pattern
-                    //use the whole header as separator in case boundary locate in difference chunks
-                    Pattern pattern = Pattern.compile("--" + headerBoundary + "\\s+(.*)\\r\\n\\r\\n",Pattern.DOTALL);
-                    Matcher matcher;
-
-                    bis = new BufferedInputStream(connection.getInputStream());
-                    byte[] read = new byte[CHUNK_SIZE], tmpCheckBoundary;
-                    int readByte, boundaryIndex;
-                    String checkHeaderStr, boundary;
-
-                    long totalFindPatternMicroSec = 0;
-                    long totalAddByteMicroSec = 0;
-                    long totalReadMicroSec = 0;
-
-                    //always keep reading images from server
-                    while (run) {
-                        try {
-                            long start = System.nanoTime();
-                            readByte = bis.read(read);
-                            totalReadMicroSec += (System.nanoTime() - start)/1000;
-
-                            //no more data
-                            if (readByte == -1) {
-                                break;
-                            }
-
-                            addByte(read, 0, readByte, false);
-                            start = System.nanoTime();
-                            checkHeaderStr = new String(currentImageBody, 0, currentImageBodyLength, "ASCII");
-                            totalAddByteMicroSec += (System.nanoTime() - start)/1000;
-
-                            start = System.nanoTime();
-                            matcher = pattern.matcher(checkHeaderStr);
-                            boolean isFound = matcher.find();
-                            totalFindPatternMicroSec += (System.nanoTime() - start)/1000;
-
-                            if (isFound) {
-                                // delete and re-add because if body contains boundary, it means body is over one image already
-                                // we want exact one image content
-                                delByte(readByte);
-
-                                Log.d("performance", String.format("matcher until new frame %dms", totalFindPatternMicroSec));
-                                Log.d("performance", String.format("new String until new frame %dms", totalAddByteMicroSec ));
-                                Log.d("performance", String.format("read until new frame %dms", totalReadMicroSec ));
-
-                                //boundary is found
-                                boundary = matcher.group(0);
-
-                                boundaryIndex = checkHeaderStr.indexOf(boundary);
-                                boundaryIndex -= currentImageBodyLength;
-
-                                if (boundaryIndex > 0) {
-                                    addByte(read, 0, boundaryIndex, false);
-                                } else {
-                                    delByte(boundaryIndex);
-                                }
-
-                                start = System.nanoTime();
-                                Bitmap outputImg = BitmapFactory.decodeByteArray(currentImageBody, 0, currentImageBodyLength);
-                                long decodeByteArrayMicroSec = (System.nanoTime() - start)/1000;
-                                Log.d("performance", String.format("decodeByteArray %dms", decodeByteArrayMicroSec));
-                                Log.d("performance", String.format("total until new frame %dms", decodeByteArrayMicroSec + totalFindPatternMicroSec + totalAddByteMicroSec + totalReadMicroSec ));
-                                totalFindPatternMicroSec = 0;
-                                totalAddByteMicroSec = 0;
-                                totalReadMicroSec = 0;
-
-                                if (outputImg != null) {
-                                    if(run) {
-                                        newFrame(outputImg);
-                                    }
-                                } else {
-                                    Log.e(tag, "Read image error");
-                                }
-
-                                int headerIndex = boundaryIndex + boundary.length();
-
-                                addByte(read, headerIndex, readByte - headerIndex, true);
-                            } else {
-//                                addByte(read, 0, readByte, false);
-                            }
-                        } catch (Exception e) {
-                            if(e.getMessage() != null) {
-                                Log.e(tag, e.getMessage());
-                            }
-                            break;
-                        }
-                    }
-
-                } catch (Exception e) {
-                    if(e.getMessage() != null) {
-                        Log.e(tag, e.getMessage());
-                    }
-                }
-
-                try {
-                    bis.close();
-                    connection.disconnect();
-                    Log.i(tag,"disconnected with " + url);
-                } catch (Exception e) {
-                    if(e.getMessage() != null) {
-                        Log.e(tag, e.getMessage());
-                    }
-                }
-
-                if(msecWaitAfterReadImageError > 0) {
-                    try {
-                        Thread.sleep(msecWaitAfterReadImageError);
-                    } catch (InterruptedException e) {
-                        if(e.getMessage() != null) {
-                            Log.e(tag, e.getMessage());
-                        }
-                    }
-                }
-            }
-        }
-
-        private void addByte(byte[] src, int srcPos, int length, boolean reset) {
-            if (reset) {
-                System.arraycopy(src, srcPos, currentImageBody, 0, length);
-                currentImageBodyLength = 0;
-            } else {
-                System.arraycopy(src, srcPos, currentImageBody, currentImageBodyLength, length);
-            }
-            currentImageBodyLength += length;
-        }
-
-        private void delByte(int del) {
-            currentImageBodyLength -= del;
-        }
-
-        private void newFrame(Bitmap bitmap){
-            if (lastFrameTimestamp > 0) {
-                Log.d("performance", "------------ " + (System.currentTimeMillis() - lastFrameTimestamp) + "ms ------------");
-            }
-
-            lastFrameTimestamp = System.currentTimeMillis();
-            setBitmap(bitmap);
-        }
-    }
-
     private final ScaleGestureDetector.OnScaleGestureListener scaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -613,5 +412,193 @@ public class MjpegView extends View{
         }
 
         return true;
+    }
+
+    class MjpegDownloader extends Thread{
+        private boolean run = true;
+        private long lastFrameTimestamp = 0;
+
+        byte[] currentImageBody = new byte[(int) 1e6];
+        int currentImageBodyLength = 0;
+
+        public void cancel(){
+            run = false;
+        }
+
+        public boolean isRunning(){
+            return run;
+        }
+
+        @Override
+        public void run() {
+            while(run) {
+                HttpURLConnection connection = null;
+                BufferedInputStream bis = null;
+                URL serverUrl;
+
+                try {
+                    serverUrl = new URL(url);
+                    connection = (HttpURLConnection) serverUrl.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+
+                    String headerBoundary = DEFAULT_BOUNDARY_REGEX;
+
+                    try{
+                        // Try to extract a boundary from HTTP header first.
+                        // If the information is not presented, throw an exception and use default value instead.
+                        String contentType = connection.getHeaderField("Content-Type");
+                        if (contentType == null) {
+                            throw new Exception("Unable to get content type");
+                        }
+
+                        String[] types = contentType.split(";");
+                        if (types.length == 0) {
+                            throw new Exception("Content type was empty");
+                        }
+
+                        String extractedBoundary = null;
+                        for (String ct : types) {
+                            String trimmedCt = ct.trim();
+                            if (trimmedCt.startsWith("boundary=")) {
+                                extractedBoundary = trimmedCt.substring(9); // Content after 'boundary='
+                            }
+                        }
+
+                        if (extractedBoundary == null) {
+                            throw new Exception("Unable to find mjpeg boundary.");
+                        }
+
+                        headerBoundary = extractedBoundary;
+                    }
+                    catch(Exception e){
+                        Log.w(tag,"Cannot extract a boundary string from HTTP header with message: " + e.getMessage() + ". Use a default value instead.");
+                    }
+
+                    // determine boundary pattern
+                    // use the whole header as separator in case boundary locate in difference chunks
+                    Pattern pattern = Pattern.compile("--" + headerBoundary + "\\s+(.*)\\r\\n\\r\\n",Pattern.DOTALL);
+                    Matcher matcher;
+
+                    bis = new BufferedInputStream(connection.getInputStream());
+                    byte[] read = new byte[CHUNK_SIZE];
+                    int readByte, boundaryIndex;
+                    String checkHeaderStr, boundary;
+
+                    //always keep reading images from server
+                    while (run) {
+                        try {
+                            readByte = bis.read(read);
+                            if (readByte == -1) {
+                                break;
+                            }
+
+                            addByte(read, 0, readByte, false);
+                            checkHeaderStr = new String(currentImageBody, 0, currentImageBodyLength, "ASCII");
+                            matcher = pattern.matcher(checkHeaderStr);
+                            if (matcher.find()) {
+                                // delete and re-add because if body contains boundary, it means body is over one image already
+                                // we want exact one image content
+                                delByte(readByte);
+
+                                boundary = matcher.group(0);
+                                boundaryIndex = checkHeaderStr.indexOf(boundary);
+                                boundaryIndex -= currentImageBodyLength;
+
+                                if (boundaryIndex > 0) {
+                                    addByte(read, 0, boundaryIndex, false);
+                                } else {
+                                    delByte(boundaryIndex);
+                                }
+
+                                Bitmap outputImg = BitmapFactory.decodeByteArray(currentImageBody, 0, currentImageBodyLength);
+                                if (outputImg != null) {
+                                    if(run) {
+                                        newFrame(outputImg);
+                                    }
+                                } else {
+                                    Log.e(tag, "Read image error");
+                                }
+
+                                int headerIndex = boundaryIndex + boundary.length();
+
+                                addByte(read, headerIndex, readByte - headerIndex, true);
+                            }
+                        } catch (Exception e) {
+                            if(e.getMessage() != null) {
+                                Log.e(tag, e.getMessage());
+                            }
+                            break;
+                        }
+                    }
+
+                } catch (Exception e) {
+                    if(e.getMessage() != null) {
+                        Log.e(tag, e.getMessage());
+                    }
+                }
+
+                try {
+                    bis.close();
+                    connection.disconnect();
+                    Log.i(tag,"disconnected with " + url);
+                } catch (Exception e) {
+                    if(e.getMessage() != null) {
+                        Log.e(tag, e.getMessage());
+                    }
+                }
+
+                if(msecWaitAfterReadImageError > 0) {
+                    try {
+                        Thread.sleep(msecWaitAfterReadImageError);
+                    } catch (InterruptedException e) {
+                        if(e.getMessage() != null) {
+                            Log.e(tag, e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        private void addByte(byte[] src, int srcPos, int length, boolean reset) {
+            if (reset) {
+                System.arraycopy(src, srcPos, currentImageBody, 0, length);
+                currentImageBodyLength = 0;
+            } else {
+                System.arraycopy(src, srcPos, currentImageBody, currentImageBodyLength, length);
+            }
+            currentImageBodyLength += length;
+        }
+
+        private void delByte(int del) {
+            currentImageBodyLength -= del;
+        }
+
+        private int findSequenceOfBytesInArrayOfBytes(byte[] searchSpace, byte[] target) {
+            for (int i=0;i<searchSpace.length;i++) {
+                boolean found = true;
+                for (int j=0;j<target.length;j++) {
+                    if (searchSpace[i+j] != target[j]) {
+                        found = false;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private void newFrame(Bitmap bitmap){
+            if (lastFrameTimestamp > 0) {
+                Log.d("performance", "------------ " + (System.currentTimeMillis() - lastFrameTimestamp) + "ms ------------");
+            }
+
+            lastFrameTimestamp = System.currentTimeMillis();
+            setBitmap(bitmap);
+        }
     }
 }
