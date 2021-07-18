@@ -573,24 +573,6 @@ public class MjpegView extends View{
             currentImageBodyLength -= del;
         }
 
-        private int findSequenceOfBytesInArrayOfBytes(byte[] searchSpace, byte[] target) {
-            for (int i=0;i<searchSpace.length;i++) {
-                boolean found = true;
-                for (int j=0;j<target.length;j++) {
-                    if (searchSpace[i+j] != target[j]) {
-                        found = false;
-                        break;
-                    }
-                }
-
-                if (found) {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
         private void newFrame(Bitmap bitmap){
             setBitmap(bitmap);
         }
