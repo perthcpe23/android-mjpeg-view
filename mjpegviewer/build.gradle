@@ -1,40 +1,15 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'mjpegviewer'
-
-    publishedGroupId = 'com.github.perthcpe23'
-    libraryName = 'AndroidMjpegView'
-    artifact = 'mjpegviewer'
-
-    libraryDescription = 'Android view to display mjpeg streaming'
-
-    siteUrl = 'https://github.com/perthcpe23/android-mjpeg-view'
-    gitUrl = 'https://github.com/perthcpe23/android-mjpeg-view.git'
-
-    libraryVersion = '1.0.8'
-
-    developerId = 'perthcpe23   '
-    developerName = 'Punyapat Sessomboon'
-    developerEmail = 'perth.s28@gmail.com'
-
-    licenseName = 'MIT'
-    licenseUrl = 'https://opensource.org/licenses/MIT'
-    allLicenses = ["MIT"]
-}
 
 android {
-    compileSdkVersion 30
+    namespace 'com.longdo.mjpegviewer'
+    compileSdkVersion 33
     buildToolsVersion '30.0.3'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 30
-        versionCode 109
-        versionName "1.0.9"
+        targetSdkVersion 33
+        versionCode 110
+        versionName "1.1.0"
     }
     buildTypes {
         release {
@@ -46,8 +21,5 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }
-
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
