@@ -6,9 +6,14 @@ android {
     compileSdkVersion 33
     buildToolsVersion '30.0.3'
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_18
+        targetCompatibility JavaVersion.VERSION_18
+    }
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 33
+        aarMetadata {
+            minCompileSdk = 14
+        }
     }
     buildTypes {
         release {
