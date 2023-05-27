@@ -40,7 +40,7 @@ MjpegView viewer = (MjpegView) findViewById(R.id.mjpegview);
 viewer.setMode(MjpegView.MODE_FIT_WIDTH);
 viewer.setAdjustHeight(true);
 viewer.setSupportPinchZoomAndPan(true);
-viewer.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test");
+viewer.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
 viewer.startStream();
 
 //when user leaves application
@@ -60,7 +60,7 @@ MyApplicationTheme {
                     mode = MjpegView.MODE_FIT_WIDTH
                     isAdjustHeight = true
                     supportPinchZoomAndPan = true
-                    setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test")
+                    setUrl("https://app.punyapat.me/mjpeg-server/mjpeg")
                     startStream()
                 }
             },

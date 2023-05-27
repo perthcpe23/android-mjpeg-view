@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         //view.setAdjustWidth(true);
         view1.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view1.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test");
+        view1.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
         view1.setRecycleBitmap(true);
         view1.setStateChangeListener(new MjpegViewStateChangeListener() {
 
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         //view.setAdjustWidth(true);
         view2.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view2.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test");
+        view2.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
     }
 
     @Override
