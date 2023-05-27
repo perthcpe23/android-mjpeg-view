@@ -34,7 +34,7 @@ afterEvaluate {
                 from components.release
                 groupId 'com.perthcpe23.dev'
                 artifactId 'android-mjpeg-view'
-                version '1.1.1'
+                version '1.1.2'
 
                 pom {
                     name = "Android Mjpeg View"
