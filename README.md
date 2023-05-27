@@ -47,7 +47,29 @@ viewer.startStream();
 viewer.stopStream();
 ````
 
-5. Don't forget to add internet access permission to Android manifests file
+5. Or Android Compose (skip #3 and #4)
+```kotlin
+MyApplicationTheme {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { context ->
+                MjpegView(context).apply {
+                    mode = MjpegView.MODE_FIT_WIDTH
+                    isAdjustHeight = true
+                    supportPinchZoomAndPan = true
+                    setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test")
+                    startStream()
+                }
+            },
+        )
+    }
+}
+```
+
+6. Don't forget to add internet access permission to Android manifests file
 ````java
 <uses-permission android:name="android.permission.INTERNET" />
 ````
