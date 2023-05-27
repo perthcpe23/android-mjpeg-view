@@ -36,5 +36,6 @@ mjpegviewer_v1.0.9.aar
   - support pinch-zoom and pan
   - move to JitPack
 
-mjpegviewer_v1.0.9.aar
+mjpegviewer_v1.1.1.aar
   - update gradle version from 6.5 to 8.0
+  - move to maven central as it's more stable

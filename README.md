@@ -7,12 +7,13 @@ Android View for displaying MJPEG stream.
 - A boundary must be specified in an HTTP headr (Content-type). Otherwise a default boundary pattern will be used.
 
 Basic usage<br/>
-1. This library is hosted on JitPack, so add it in your <b>root</b> build.gradle at the end of repositories.
+1. This library is hosted on Maven Central, so make sure you added `mavenCentral()` as one of repositories
 ```gradle
-allprojects {
+dependencyResolutionManagement {
+    ...
     repositories {
         ...
-        maven { url 'https://jitpack.io' }
+        mavenCentral()
     }
 }
 ```
@@ -20,9 +21,8 @@ allprojects {
 2. Include a library in to your project by adding this to <b>app level</b> build.gradle file.
 ```gradle
 dependencies {
-    // other dependencies
-    
-    implementation 'com.github.perthcpe23:android-mjpeg-view:v1.0.9'
+    ...
+    implementation 'com.perthcpe23.dev:android-mjpeg-view:1.1.1'
 }
 ```
 
@@ -52,7 +52,7 @@ viewer.stopStream();
 <uses-permission android:name="android.permission.INTERNET" />
 ````
 
-* You can also download .aar at https://github.com/perthcpe23/android-mjpeg-view/tree/master/arr
+* You can also download .aar at https://github.com/perthcpe23/android-mjpeg-view/tree/master/aar
 
 # Contact
 perth.s28@gmail.com

@@ -1,15 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 android {
     namespace 'com.longdo.mjpegviewer'
     compileSdkVersion 33
     buildToolsVersion '30.0.3'
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_18
-        targetCompatibility JavaVersion.VERSION_18
-    }
     defaultConfig {
         aarMetadata {
             minCompileSdk = 14
@@ -24,6 +21,7 @@ android {
     publishing {
         singleVariant('release') {
             withSourcesJar()
+            withJavadocJar()
         }
     }
 }
@@ -33,12 +31,54 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId 'com.github.perthcpe23'
+                groupId 'com.perthcpe23.dev'
                 artifactId 'android-mjpeg-view'
                 version '1.1.1'
+
+                pom {
+                    name = "Android Mjpeg View"
+                    description = "Android custom View to render Mjpeg stream"
+                    url = "https://github.com/perthcpe23/android-mjpeg-view"
+                    licenses {
+                        license {
+                            name = "The MIT License (MIT)"
+                            url = "https://opensource.org/license/mit/"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "perthcpe23"
+                            name = "Punyapat S"
+                            email = "perth.s28@gmail.com"
+                        }
+                    }
+                    scm {
+                        connection = "scm:git:git://github.com/perthcpe23/android-mjpeg-view.git"
+                        developerConnection = "scm:git:ssh://github.com:perthcpe23/android-mjpeg-view.git"
+                        url = "http://github.com/perthcpe23/android-mjpeg-view/tree/master"
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                name = "Central" //  optional target repository name
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username = System.getenv("MAVEN_USERNAME")
+                    password = System.getenv("MAVEN_PASSWORD")
+                }
+            }
+            maven {
+                name = "Local" //  optional target repository name
+                url = layout.buildDirectory.dir('local_repo')
             }
         }
     }
+}
+
+signing {
+    sign publishing.publications
 }
 
 dependencies {
