@@ -1,12 +1,17 @@
 package com.longdo.mjpegview;
 
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.longdo.mjpegviewer.MjpegView;
+import com.longdo.mjpegviewer.MjpegViewError;
+import com.longdo.mjpegviewer.MjpegViewStateChangeListener;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -24,8 +29,39 @@ public class MainActivity extends AppCompatActivity {
         //view.setAdjustWidth(true);
         view1.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view1.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
+        view1.setUrl("https://bma-itic1.iticfoundation.org/mjpeg2.php?camid=test");
         view1.setRecycleBitmap(true);
+        view1.setStateChangeListener(new MjpegViewStateChangeListener() {
+
+            @Override
+            public void onStreamDownloadStart() {
+                Log.d("StateChangeListener", "onStreamDownloadStart");
+            }
+
+            @Override
+            public void onStreamDownloadStop() {
+                Log.d("StateChangeListener", "onStreamDownloadStop");
+            }
+
+            @Override
+            public void onServerConnected() {
+                Log.d("StateChangeListener", "onServerConnected");
+            }
+
+            @Override
+            public void onMeasurementChanged(Rect rect) {
+                Log.d("StateChangeListener", "onMeasurementChanged");
+            }
+
+            @Override
+            public void onNewFrame(Bitmap image) {
+            }
+
+            @Override
+            public void onError(MjpegViewError error) {
+                Log.d("StateChangeListener", String.valueOf(error.errorCode));
+            }
+        });
 
         view2 = findViewById(R.id.mjpegview2);
         view2.setAdjustHeight(true);
