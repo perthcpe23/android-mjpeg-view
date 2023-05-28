@@ -1,10 +1,10 @@
 # android-mjpeg-view
-Android View for displaying MJPEG stream.
+Android custom View for displaying MJPEG stream.
 
-- This view only requires a specific http url.
+- This custom view only requires a specific http(s) url.
 - Supported image scaling methods are fit width, fit height, original size, stretch and best fit.
-- Only boundary is used to separate each jpeg image (each frame) from a stream. Content-length is ignored.
-- A boundary must be specified in an HTTP headr (Content-type). Otherwise a default boundary pattern will be used.
+- Only boundary is used to separate each jpeg image (i.e. each frame) from a stream. Content-length is ignored.
+- A boundary must be specified in an HTTP headr (Content-type), otherwise a default boundary pattern will be used.
 
 Basic usage<br/>
 1. This library is hosted on Maven Central, so make sure you added `mavenCentral()` as one of repositories
@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 ```gradle
 dependencies {
     ...
-    implementation 'com.perthcpe23.dev:android-mjpeg-view:1.1.1'
+    implementation 'com.perthcpe23.dev:android-mjpeg-view:1.1.2'
 }
 ```
 
