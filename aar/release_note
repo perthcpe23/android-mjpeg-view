@@ -42,3 +42,6 @@ mjpegviewer_v1.1.1.aar
 
 mjpegviewer_v1.1.2.aar
   - add state change listener
+
+mjpegviewer_v1.1.3.aar
+  - allow use of a custom network
