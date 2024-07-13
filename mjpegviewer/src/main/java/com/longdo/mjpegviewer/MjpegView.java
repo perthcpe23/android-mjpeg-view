@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.net.Network;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -43,6 +44,7 @@ public class MjpegView extends View {
     private final Rect stateStart = new Rect();
     private MjpegViewStateChangeListener listener = null;
     private String url;
+    private Network network;
     private Bitmap lastBitmap;
     private MjpegDownloader downloader;
     private Paint paint;
@@ -154,6 +156,10 @@ public class MjpegView extends View {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setNetwork(Network network) {
+        this.network = network;
     }
 
     public void startStream() {
@@ -435,7 +441,13 @@ public class MjpegView extends View {
 
                 try {
                     serverUrl = new URL(url);
-                    connection = (HttpURLConnection) serverUrl.openConnection();
+
+                    if (network != null) {
+                        connection = (HttpURLConnection) network.openConnection(serverUrl);
+                    } else {
+                        connection = (HttpURLConnection) serverUrl.openConnection();
+                    }
+                    
                     connection.setDoInput(true);
                     connection.connect();
 
