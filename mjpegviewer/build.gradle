@@ -11,7 +11,7 @@ android {
         aarMetadata {
             minCompileSdk = 14
         }
-        minSdkVersion 19
+        minSdkVersion 21
     }
     buildTypes {
         release {
