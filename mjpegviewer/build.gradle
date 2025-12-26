@@ -1,11 +1,16 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
+plugins {
+    id "com.vanniktech.maven.publish" version "0.35.0"
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 android {
-    namespace 'com.longdo.mjpegviewer'
-    compileSdkVersion 33
-    buildToolsVersion '30.0.3'
+    namespace = 'com.longdo.mjpegviewer'
+    compileSdkVersion = 36
 
     defaultConfig {
         aarMetadata {
@@ -19,63 +24,43 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    publishing {
-        singleVariant('release') {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId 'com.perthcpe23.dev'
-                artifactId 'android-mjpeg-view'
-                version '1.1.3'
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 
-                pom {
-                    name = "Android Mjpeg View"
-                    description = "Android custom View to render Mjpeg stream"
-                    url = "https://github.com/perthcpe23/android-mjpeg-view"
-                    licenses {
-                        license {
-                            name = "The MIT License (MIT)"
-                            url = "https://opensource.org/license/mit/"
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = "perthcpe23"
-                            name = "Punyapat S"
-                            email = "perth.s28@gmail.com"
-                        }
-                    }
-                    scm {
-                        connection = "scm:git:git://github.com/perthcpe23/android-mjpeg-view.git"
-                        developerConnection = "scm:git:ssh://github.com:perthcpe23/android-mjpeg-view.git"
-                        url = "http://github.com/perthcpe23/android-mjpeg-view/tree/master"
-                    }
-                }
+    coordinates("com.perthcpe23.dev", "android-mjpeg-view", "1.1.4")
+
+    pom {
+        name = "Android Mjpeg View"
+        description = "Android custom View to render Mjpeg stream"
+        url = "https://github.com/perthcpe23/android-mjpeg-view"
+        licenses {
+            license {
+                name = "The MIT License (MIT)"
+                url = "https://opensource.org/license/mit/"
             }
         }
-        repositories {
-            maven {
-                name = "Central" //  optional target repository name
-                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                credentials {
-                    username = System.getenv("MAVEN_USERNAME")
-                    password = System.getenv("MAVEN_PASSWORD")
-                }
+        developers {
+            developer {
+                id = "perthcpe23"
+                name = "Punyapat S"
+                email = "perth.s28@gmail.com"
             }
-            maven {
-                name = "Local" //  optional target repository name
-                url = layout.buildDirectory.dir('local_repo')
-            }
+        }
+        scm {
+            connection = "scm:git:git://github.com/perthcpe23/android-mjpeg-view.git"
+            developerConnection = "scm:git:ssh://github.com:perthcpe23/android-mjpeg-view.git"
+            url = "http://github.com/perthcpe23/android-mjpeg-view/tree/master"
         }
     }
+
+    configure(new AndroidSingleVariantLibrary(
+        "release",
+        true,  // keep sources
+        false  // Javadoc/Dokka
+    ))
 }
 
 signing {
@@ -84,5 +69,10 @@ signing {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
