@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 ```gradle
 dependencies {
     ...
-    implementation 'com.perthcpe23.dev:android-mjpeg-view:1.1.2'
+    implementation 'com.perthcpe23.dev:android-mjpeg-view:1.1.4'
 }
 ```
 
@@ -40,7 +40,7 @@ MjpegView viewer = (MjpegView) findViewById(R.id.mjpegview);
 viewer.setMode(MjpegView.MODE_FIT_WIDTH);
 viewer.setAdjustHeight(true);
 viewer.setSupportPinchZoomAndPan(true);
-viewer.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
+viewer.setUrl("https://mjpeg-mock-server-710629232880.asia-southeast3.run.app/mjpeg");
 viewer.startStream();
 
 //when user leaves application
@@ -60,7 +60,7 @@ MyApplicationTheme {
                     mode = MjpegView.MODE_FIT_WIDTH
                     isAdjustHeight = true
                     supportPinchZoomAndPan = true
-                    setUrl("https://app.punyapat.me/mjpeg-server/mjpeg")
+                    setUrl("https://mjpeg-mock-server-710629232880.asia-southeast3.run.app/mjpeg")
                     startStream()
                 }
             },

@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         //view.setAdjustWidth(true);
         view1.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view1.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
+        view1.setUrl("https://mjpeg-mock-server-710629232880.asia-southeast3.run.app/mjpeg");
         view1.setRecycleBitmap(true);
         view1.setStateChangeListener(new MjpegViewStateChangeListener() {
 
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         //view.setAdjustWidth(true);
         view2.setMode(MjpegView.MODE_FIT_WIDTH);
         //view.setMsecWaitAfterReadImageError(1000);
-        view2.setUrl("https://app.punyapat.me/mjpeg-server/mjpeg");
+        view2.setUrl("https://mjpeg-mock-server-710629232880.asia-southeast3.run.app/mjpeg");
     }
 
     @Override
